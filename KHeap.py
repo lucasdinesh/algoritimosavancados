@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class KHeap:
     def __init__(self, k, num_nodes):
         self.k = k  # Número de filhos por nó

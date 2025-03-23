@@ -1,5 +1,6 @@
 from KHeap import KHeap
-from read_csv import read_dimacs_with_gc as read_dimacs
+# from read_csv import read_dimacs_with_gc as read_dimacs
+from read_csv import read_dimacs
 import sys
 import time
 import numpy as np

@@ -1,29 +1,37 @@
-from collections import defaultdict
+import time
 import gc
 
+def read_dimacs(in_file):
+    """Lê um grafo DIMACS de forma eficiente e evita consumo excessivo de memória."""
 
-def read_dimacs_with_gc(in_file):
-    graph = defaultdict(list)
-    line = in_file.readline().strip()
-    while not line.startswith("p sp"):
-        line = in_file.readline().strip()
+    # 🔥 1. Força a liberação de memória antes de começar
+    gc.collect()
+    graph = {}  # Dicionário para lista de adjacências
+    n, m = 0, 0  # Número de nós e arestas
 
-    parts = line.split()
-    n, m = int(parts[2]), int(parts[3])
+    start_time = time.time()
 
-    for _ in range(m):
-        line = in_file.readline().strip()
-        if line.startswith("a "):
-            parts = line.split()
-            u, v, w = int(parts[1]), int(parts[2]), int(parts[3])
+    for line in in_file:
+        if line.startswith("p sp"):
+            _, _, n, m = line.split()
+            n, m = int(n), int(m)
 
-            if v not in [adj[0] for adj in graph[u]]:
-                graph[u].append((v, w))
-            if u not in [adj[0] for adj in graph[v]]:
-                graph[v].append((u, w))
+        elif line.startswith("a"):
+            _, u, v, w = line.split()
+            u, v, w = int(u), int(v), int(w)
 
-        # Liberando memória manualmente a cada certo número de iterações
-        if _ % 100000 == 0:  # Ajuste conforme necessário
+            if u not in graph:
+                graph[u] = []
+            graph[u].append((v, w))
+
+        # 🔥 2. Libera memória periodicamente para evitar picos
+        if len(graph) % 100000 == 0:
             gc.collect()
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    with open("tempo_leitura.txt", "w") as log_file:
+        log_file.write(f"Tempo de leitura do grafo: {elapsed_time:.4f} segundos\n")
 
     return graph, n, m
