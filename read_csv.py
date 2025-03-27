@@ -1,9 +1,18 @@
+import psutil
 from array import array
+
+def get_memory_usage():
+    process = psutil.Process()
+    return process.memory_info().rss  # Em bytes
 
 def read_dimacs(file_path):
     adj = []      # Lista de adjacências usando array('I')
     weights = []  # Lista de pesos usando array('I')
     n = m = 0
+
+    # Mostra a memória usada antes de iniciar a leitura
+    memory_before = get_memory_usage()
+    print(f"Memória antes de ler o grafo: {memory_before / (1024 ** 2):.2f} MB")
 
     # Primeira leitura para descobrir o número de vértices
     with open(file_path, 'r') as file:
@@ -23,6 +32,11 @@ def read_dimacs(file_path):
                 u, v, w = int(u) - 1, int(v) - 1, int(w)  # Convertendo para índice base 0
                 adj[u].append(v)
                 weights[u].append(w)
+
+    # Mostra a memória usada depois de carregar o grafo
+    memory_after = get_memory_usage()
+    print(f"Memória depois de ler o grafo: {memory_after / (1024 ** 2):.2f} MB")
+    print(f"Uso de memória durante a leitura do grafo: {(memory_after - memory_before) / (1024 ** 2):.2f} MB")
 
     return adj, weights, n, m
 

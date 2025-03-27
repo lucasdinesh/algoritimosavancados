@@ -3,9 +3,6 @@ from read_csv import read_dimacs
 import sys
 import time
 
-from array import array
-
-from array import array
 
 
 def dijkstra(adj, weights, num_nodes, start, end, k):
@@ -44,7 +41,7 @@ def dijkstra(adj, weights, num_nodes, start, end, k):
             if new_distance < dist.get(neighbor, float('inf')):
                 dist[neighbor] = new_distance
 
-                if heap.position[neighbor] != -1:
+                if neighbor in heap.position and heap.position[neighbor] != -1:
                     heap.decrease_key(neighbor, new_distance)
                     update_count += 1
                 else:
