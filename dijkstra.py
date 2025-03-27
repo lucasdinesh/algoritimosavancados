@@ -3,53 +3,53 @@ from read_csv import read_dimacs
 import sys
 import time
 
+from array import array
+
+from array import array
+
+
 def dijkstra(adj, weights, num_nodes, start, end, k):
     """Encontra o caminho mais curto de start para end usando um heap k-ário."""
+
+    start -= 1  # Convertendo para índice base 0
+    end -= 1  # Convertendo para índice base 0
+
     heap = KHeap(k, num_nodes)
-    dist = {}  # Usa dicionário para alocação dinâmica
+    dist = {}  # Dicionário dinâmico para evitar alocação de memória excessiva
     dist[start] = 0
+    heap.push(0, start)
 
     insert_count = 0
     deletemin_count = 0
     update_count = 0
 
-    heap.push(0, start)  # Insere o nó inicial com prioridade 0
-
     while not heap.is_empty():
-        current_dist, current_node = heap.pop()  # Remove o nó com menor prioridade
+        current_dist, current_node = heap.pop()
         deletemin_count += 1
 
-        # Pula se já encontramos um caminho melhor para esse nó
         if current_dist > dist.get(current_node, float('inf')):
             continue
 
-        # Retorna o resultado se chegarmos ao destino
         if current_node == end:
             heap.print_operation_counts()
             return current_dist, insert_count, deletemin_count, update_count
 
-        # Itera sobre vizinhos do nó atual
-        for i, neighbor in enumerate(adj[current_node]):
-            new_distance = current_dist + weights[current_node][i]
+        neighbors = adj[current_node]
+        weights_list = weights[current_node]
+
+        for i in range(len(neighbors)):
+            neighbor = neighbors[i]  # Índice já está em base 0
+            new_distance = current_dist + weights_list[i]
 
             if new_distance < dist.get(neighbor, float('inf')):
-                dist[neighbor] = new_distance  # Atualiza a distância
+                dist[neighbor] = new_distance
 
-                # Lida com a posição no heap
-                if isinstance(heap.position, dict):  # Implementação esparsa
-                    if neighbor in heap.position:
-                        heap.decrease_key(neighbor, new_distance)
-                        update_count += 1
-                    else:
-                        heap.push(new_distance, neighbor)
-                        insert_count += 1
-                else:  # Implementação densa (numpy array)
-                    if heap.position[neighbor] != -1:  # Já no heap
-                        heap.decrease_key(neighbor, new_distance)
-                        update_count += 1
-                    else:
-                        heap.push(new_distance, neighbor)
-                        insert_count += 1
+                if heap.position[neighbor] != -1:
+                    heap.decrease_key(neighbor, new_distance)
+                    update_count += 1
+                else:
+                    heap.push(new_distance, neighbor)
+                    insert_count += 1
 
     heap.print_operation_counts()
     return "inf", insert_count, deletemin_count, update_count

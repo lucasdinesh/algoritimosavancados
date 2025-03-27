@@ -1,24 +1,31 @@
-
-from collections import defaultdict
 from array import array
 
 def read_dimacs(file_path):
-    adj = defaultdict(lambda: array('I'))    # Lista de adjacência eficiente
-    weights = defaultdict(lambda: array('I')) # Lista de pesos eficiente
+    adj = []      # Lista de adjacências usando array('I')
+    weights = []  # Lista de pesos usando array('I')
     n = m = 0
 
+    # Primeira leitura para descobrir o número de vértices
     with open(file_path, 'r') as file:
         for line in file:
             if line.startswith('p sp'):
                 _, _, n, m = line.split()
                 n, m = int(n), int(m)
-            elif line.startswith('a'):
+                adj = [array('I') for _ in range(n)]  # Inicializa arrays vazios para adjacências
+                weights = [array('I') for _ in range(n)]  # Inicializa arrays vazios para pesos
+                break  # Não precisa continuar procurando
+
+    # Segunda leitura para processar as arestas
+    with open(file_path, 'r') as file:
+        for line in file:
+            if line.startswith('a'):
                 _, u, v, w = line.split()
-                u, v, w = int(u), int(v), int(w)
+                u, v, w = int(u) - 1, int(v) - 1, int(w)  # Convertendo para índice base 0
                 adj[u].append(v)
                 weights[u].append(w)
 
     return adj, weights, n, m
+
 
 
 def print_graph(adj, weights, output_file):
